@@ -1,0 +1,17 @@
+# Python environments and generated caches
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local configuration and secrets
+.env
+
+# Models, training outputs, and generated artifacts
+models/
+checkpoints/
+artifacts/
+runs/
+conversations/
