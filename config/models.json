@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "default_model": "qwen-4b",
+  "ollama_base_url": "http://127.0.0.1:11434",
+  "models": [
+    {
+      "id": "qwen-4b",
+      "display_name": "Qwen 3.5 4B",
+      "backend": "ollama",
+      "model_name": "qwen3.5:4b",
+      "enabled": true,
+      "context_length": 4096,
+      "max_output_tokens": 512,
+      "temperature": null,
+      "seed": null
+    },
+    {
+      "id": "qwen-9b",
+      "display_name": "Qwen 3.5 9B",
+      "backend": "ollama",
+      "model_name": "qwen3.5:9b",
+      "enabled": true,
+      "context_length": 4096,
+      "max_output_tokens": 512,
+      "temperature": null,
+      "seed": null
+    }
+  ]
+}

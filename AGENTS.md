@@ -15,9 +15,49 @@ clarity, explicit behavior, and incremental progress.
 ## Active Development Roadmap
 
 This section defines the development order as of 2026-09-14. Follow it unless
-the owner changes priorities. It narrows the broader ideas in `todo.md` to a
-finite local CLI release. The manual code-change rules below still apply;
-permission to edit this roadmap does not authorize future application edits.
+the owner changes priorities. It defines a finite local CLI release.
+Follow the collaboration rules below when implementing
+requested changes; the roadmap does not authorize unrelated work.
+
+### Completion status (updated 2026-09-18)
+
+Record completion using existing tests and owner-reported runs; do not reopen
+completed milestones merely to repeat testing. DONE implementation does not
+mean every live acceptance step has been observed.
+
+- [x] DONE: Phase 0 testing checkpoint, including existing local inference,
+  GPU-monitoring, evaluation, cancellation, and bounded handoff evidence.
+- [x] DONE: Phase 1 JSON registry, validated profiles, and configuration-only
+  model additions through the existing backend.
+- [x] DONE: Phase 2 model commands, runtime status, validated selection,
+  enable/disable persistence, and state preservation on failure.
+- [x] DONE: Phase 3 explicit session saving, listing, loading, saved settings,
+  unsaved-work guards, and new conversations.
+- [x] DONE: Phase 4 context-management implementation: full transcript retained,
+  persisted clearing boundary, estimated token budget, complete recent-turn
+  selection, omission notices, and oversized-prompt rejection.
+- [x] DONE: Makefile lint, format, format-check, and all/named unit-test commands.
+- [x] DONE: README usage guide and final acceptance instructions.
+- [x] DONE: Fast verification after context changes: Ruff checks passed;
+  99 tests passed, with one opt-in live integration test skipped.
+- [x] DONE: Latest live run completed two 4B turns, saved, restarted, listed
+  sessions, loaded four messages with the saved 64-token output limit, then
+  cleared request context and saved the same session again.
+- [x] DONE: Latest live run demonstrated useful errors for missing `/load`
+  arguments, unknown `/list`, switching with retained history, and invalid
+  `/new qwen-9b` syntax. Idle Ctrl+C exited after saving.
+- [x] DONE: Subsequent live run loaded the saved chat, used `/new`, and selected
+  `qwen-9b` with its registry settings (4096 context, 512 output tokens).
+  The repeated `/clear` did not change an already-saved boundary, so `/new`
+  correctly required no additional save in this run.
+- [ ] PENDING: Complete a generated 9B turn after this successful switch.
+  The latest log stops at model selection. Reuse earlier live resumption and
+  automated context/resumption evidence; this log does not show a resumed turn.
+- [ ] PENDING: First-release sign-off after that remaining live workflow.
+
+Keep later work deferred, not DONE: improved terminal input/history, current
+date/runtime information, RAG, expanded evaluations, thinking profiles, GUI,
+fine-tuning, and training. No application changes were made by this status update.
 
 ### Current goal and baseline
 
@@ -32,30 +72,30 @@ evaluation, and saved evaluation artifacts. Qwen 3.5 4B is the provisional
 default because of its measured speed and memory cost; 9B remains available.
 The small quality evaluation does not establish a general quality winner.
 
-### Phase 0: close the current testing checkpoint
+### Phase 0: close the current testing checkpoint — DONE
 
 Use exactly these six acceptance scenarios to close this phase. Reuse existing
 tests and reported results when the relevant code has not changed. These are
 acceptance scenarios, not a requirement to create six new test files or to
 reach a particular test count.
 
-1. Static checks and existing unit tests pass. The live integration test may
+1. DONE: Static checks and existing unit tests pass. The live integration test may
    remain skipped in ordinary unit-test runs.
-2. One local model completes a streamed CLI turn; a second turn receives the
+2. DONE: One local model completes a streamed CLI turn; a second turn receives the
    prior conversation. Use existing integration and conversation tests as
    evidence; do not repeat the two-model performance benchmark.
-3. A failed or cancelled generation leaves no incomplete turn in conversation
+3. DONE: A failed or cancelled generation leaves no incomplete turn in conversation
    history and allows another prompt. Add a focused fake-backend cancellation
    check only if current tests do not cover it.
-4. Optional GPU monitoring returns samples on this machine. A measurement
+4. DONE: Optional GPU monitoring returns samples on this machine. A measurement
    failure is reported visibly without converting a successful inference test
    into a failure. Existing monitoring output counts as evidence.
-5. One saved evaluation artifact parses as JSON and includes settings, model
+5. DONE: One saved evaluation artifact parses as JSON and includes settings, model
    mapping, all six case prompts and answers, scores, manual ratings, timings,
    and GPU samples or explicit measurement errors. The 2026-09-14 artifact is
    existing evidence for the successful path; do not regenerate it merely to
    repeat verification.
-6. Model handoff waits for the previous model to disappear from Ollama's
+6. DONE: Model handoff waits for the previous model to disappear from Ollama's
    running-model list and fails with a bounded, actionable timeout if it does
    not. Use mocked states for timeout coverage. GPU memory samples describe
    the whole device; an empty model list does not prove all VRAM is freed.
@@ -69,7 +109,7 @@ Defer larger question sets, versioned evaluation-suite files, academic
 benchmarks, blind-rating refinements, and thinking-mode comparisons until the
 first CLI release is usable or a specific feature requires them.
 
-### Phase 1: model registry and validated configuration
+### Phase 1: model registry and validated configuration — DONE
 
 Start with `config/models.json`, a small, versioned JSON registry. Use Python's
 standard JSON library; no database service or new configuration dependency is
@@ -102,7 +142,7 @@ default; select an enabled profile; and prove with a fake backend that a newly
 added profile works without changing source. Missing model weights must produce
 an actionable message, not an automatic download.
 
-### Phase 2: model selection in the interactive CLI
+### Phase 2: model selection in the interactive CLI — implementation DONE
 
 Add `/models` to show profiles and enabled/installed/loaded status, `/model`
 to show the current profile, and `/model <id>` to select an enabled profile.
@@ -125,7 +165,7 @@ Acceptance: list and select a profile, reject disabled/unknown/uninstalled
 choices, persist enable/disable state across restart, preserve state on failure,
 and perform one real chat with a profile added solely through JSON.
 
-### Phase 3: save and resume chat sessions
+### Phase 3: save and resume chat sessions — DONE
 
 Use one versioned JSON file per session under `conversations/`, already ignored
 by Git. Start with a single-process local store and scan files for listings;
@@ -156,7 +196,11 @@ turn receives the saved history; malformed or unsafe IDs/files fail clearly;
 failed saves preserve the previous file; and `/new` or `/load` cannot silently
 discard unsaved work. Use temporary directories and fake backends for tests.
 
-### Phase 4: manage context and finish the first CLI release
+### Phase 4: manage context and finish the first CLI release — implementation DONE
+
+Context features and automated checks are DONE. Final live acceptance remains
+PENDING as detailed in the completion status above; do not label the entire
+release complete yet.
 
 Separate the full saved transcript from the messages included in each model
 request. The model's context budget must accommodate its prompt template,
@@ -184,7 +228,7 @@ model. Verify useful errors for an unavailable Ollama service and cancellation.
 
 ### Release discipline and later work
 
-Each phase may take several small owner-applied steps. Add focused tests for
+Each phase may take several small implementation steps. Add focused tests for
 new behavior and regressions, run existing fast checks once after relevant
 changes, and repeat live GPU checks only when model/backend behavior warrants
 them. No coverage-percentage target, large model downloads, or repeated blind
@@ -199,23 +243,27 @@ reuse configuration, conversations, storage, and model adapters.
 
 ## Collaboration Rules
 
-### Manual code changes
+### Direct code changes
 
-The repository owner makes all code changes manually.
+Agents may directly create and edit repository files, apply patches, and run
+formatters, linters, tests, and relevant local verification within the scope of
+the owner's requested task. Keep changes focused and incremental, preserve
+unrelated owner changes, and avoid destructive operations without clear
+authorization.
+
+The owner does not need to copy, paste, or apply agent-proposed changes manually.
+Honor requests for explanation-only answers or manual instructions instead of
+editing when that is what the owner asks for.
 
 Unless explicitly requested otherwise, agents must not:
 
-- Create, edit, rename, move, or delete repository files.
-- Apply patches.
 - Install or remove dependencies.
 - Download models or datasets.
-- Run commands that modify the repository or Git state.
+- Run commands that modify Git state.
 - Commit, push, or create branches.
 
-Agents may inspect existing files and report their findings.
-
-All proposed code and file contents must be shown in the chat so the owner can
-copy and paste them manually.
+Agents may inspect existing files and report their findings without making
+changes when the request is for review, diagnosis, or explanation.
 
 ### Incremental development
 
@@ -226,16 +274,28 @@ For each step:
 1. State the goal of the step.
 2. Explain why the step is needed.
 3. Identify every file that must be created or changed.
-4. Provide the exact code to copy.
-5. Provide the command used to verify the change.
-6. Explain the expected result.
-7. Wait for the owner to apply and test the change before building on it.
+4. Implement the requested changes directly unless manual instructions were requested.
+5. Run appropriate verification and report the commands used.
+6. Explain the actual results and any unverified behavior or limitations.
+7. Ask the owner only when a required choice, permission, or unavailable manual
+   check prevents further progress within the requested scope.
 
 Do not generate a large project skeleton unless the owner specifically asks for
 one.
 
 When several implementations are possible, recommend one simple default and
 briefly explain the important tradeoffs.
+
+### Implementation handoff
+
+After every implemented step, provide a self-contained description answering:
+
+- What was done: the behavior changed and the files or components affected.
+- Why it was done: the problem solved and how it advances the current goal.
+- How it was verified: checks run, their results, and remaining limitations.
+
+Do not report only that the work is done or that tests passed. Keep the
+explanation concise, but make the purpose of the change explicit.
 
 ## Teaching Style
 
@@ -266,13 +326,16 @@ data flow, design decisions, and likely sources of mistakes.
 
 ## Code Presentation
 
-Every code block must state:
+For direct edits, summarize the changes, link to the affected files, and report
+verification results. Do not paste entire files unless the owner requests it.
+
+When providing code for manual application, every code block must state:
 
 - The target file path.
 - Whether it creates a new file or changes an existing file.
 - Whether the block is the complete file or only a replacement section.
 
-Code intended for copy-paste must:
+All implemented or proposed code must:
 
 - Be complete and executable.
 - Contain no placeholder ellipses such as `...`.
@@ -285,10 +348,11 @@ Code intended for copy-paste must:
 - Include type hints where they improve understanding.
 - Use docstrings for public or non-obvious functions.
 
-For small files, provide the complete file. For larger existing files, provide
-an exact replacement section with enough surrounding context to locate it.
+When the owner requests copy-paste instructions, provide the complete file for
+small files. For larger existing files, provide an exact replacement section
+with enough surrounding context to locate it.
 
-After the code, explain how the new code connects to the rest of the project.
+Explain how the changed code connects to the rest of the project.
 
 ## AI/ML Scope
 
@@ -443,7 +507,7 @@ When a test fails, explain the observed evidence and likely cause before
 proposing a fix.
 
 Do not report that code works unless it has actually been run, or clearly state
-that the result is unverified because the owner has not run it yet.
+that the result is unverified and explain why it could not be run.
 
 ## Model and Dataset Safety
 

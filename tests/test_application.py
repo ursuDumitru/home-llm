@@ -137,18 +137,16 @@ class ChatSessionTests(unittest.TestCase):
             FakeBackend(),
             system_prompt="Answer concisely.",
         )
-
         list(session.send("Hello"))
+        transcript = session.messages
+
         session.clear()
 
+        self.assertEqual(session.messages, transcript)
+        self.assertEqual(session.context_start, 1)
         self.assertEqual(
-            session.messages,
-            (
-                ChatMessage(
-                    role="system",
-                    content="Answer concisely.",
-                ),
-            ),
+            session.context_messages,
+            (ChatMessage(role="system", content="Answer concisely."),),
         )
 
 
@@ -222,7 +220,7 @@ class CliTests(unittest.TestCase):
 
         self.assertIn("Available commands:", rendered)
         self.assertIn("Active model: test-model", rendered)
-        self.assertIn("Conversation history cleared.", rendered)
+        self.assertIn("Request context cleared; full transcript retained.", rendered)
         self.assertIn("Hello from the fake model.", rendered)
         self.assertIn("Unknown command '/unknown'", rendered)
         self.assertIn("Session ended.", rendered)
